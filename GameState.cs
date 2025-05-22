@@ -9,6 +9,7 @@ namespace GunDuel
         private int round;
         private Dictionary<PlayerIndex, int> ammo;
         private Dictionary<PlayerIndex, int> scoreboard;
+        private Dictionary<int, List<GameStateSnapshot>> moveHistory;
 
         public GameState()
         {
@@ -21,6 +22,8 @@ namespace GunDuel
             scoreboard = new Dictionary<PlayerIndex, int>();
             scoreboard[PlayerIndex.Player1] = 0;
             scoreboard[PlayerIndex.Player2] = 0;
+
+            moveHistory = new Dictionary<int, List<GameStateSnapshot>>();
         }
 
         public void NewRound()
@@ -76,6 +79,18 @@ namespace GunDuel
 
             ammo[id] = 0;
             return false;
+        }
+
+        public void RecordMoves(Move m1, Move m2)
+        {
+            GameStateSnapshot snap = new GameStateSnapshot(ammo[PlayerIndex.Player1], ammo[PlayerIndex.Player2], m1, m2);
+            if (!moveHistory.ContainsKey(round)) moveHistory[round] = new List<GameStateSnapshot>();
+            moveHistory[round].Add(snap);
+        }
+
+        public Dictionary<int, List<GameStateSnapshot>> GetMoveHistory()
+        {
+            return moveHistory;
         }
     }
 }

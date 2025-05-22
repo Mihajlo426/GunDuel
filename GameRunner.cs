@@ -44,6 +44,7 @@ namespace GunDuel
             {
                 Move move1 = players[PlayerIndex.Player1].PickMove();
                 Move move2 = players[PlayerIndex.Player2].PickMove();
+                State.RecordMoves(move1, move2);
 
                 Outcome outcome = this.ResolveTurn(move1, move2);
                 switch (outcome)
