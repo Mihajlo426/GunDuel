@@ -92,5 +92,15 @@ namespace GunDuel
         {
             return moveHistory;
         }
+
+        public int GetRound()
+        {
+            return round;
+        }
+
+        public int GetScore(PlayerIndex ind)
+        {
+            return scoreboard[ind];
+        }
     }
 }

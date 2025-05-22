@@ -31,11 +31,12 @@ namespace GunDuel
             while (!State.IsGameOver())
             {
                 State.NewRound();
+                DisplayRoundHeader();
                 PlayRound();
             }
 
             winner = State.GetWinner();
-            Console.WriteLine($"{players[winner].GetName()} WIN EVERYTHING");
+            Console.WriteLine($"{players[winner].GetName()} WINS EVERYTHING");
         }
 
         private void PlayRound()
@@ -47,12 +48,31 @@ namespace GunDuel
                 State.RecordMoves(move1, move2);
 
                 Outcome outcome = this.ResolveTurn(move1, move2);
+               
+                DisplayMoveAndAmmo(move1, move2);
+
                 switch (outcome)
                 {
-                    case Outcome.BothDead: State.RecordRoundResult(PlayerIndex.Undefined); Console.WriteLine("DRAW"); return;
-                    case Outcome.P1Dead:   State.RecordRoundResult(PlayerIndex.Player2); Console.WriteLine($"{players[PlayerIndex.Player2].GetName()} WIN"); return;
-                    case Outcome.P2Dead:   State.RecordRoundResult(PlayerIndex.Player1);  Console.WriteLine($"{players[PlayerIndex.Player1].GetName()} WIN"); return;
-                    default: continue;
+                    case Outcome.BothDead:
+                        State.RecordRoundResult(PlayerIndex.Undefined);
+                        Console.WriteLine("DRAW");
+                        return;
+
+                    case Outcome.P1Dead:
+                        State.RecordRoundResult(PlayerIndex.Player2);
+                        Console.WriteLine($"{players[PlayerIndex.Player2].GetName()} WIN");
+                        return;
+
+                    case Outcome.P2Dead:
+                        State.RecordRoundResult(PlayerIndex.Player1);
+                        Console.WriteLine($"{players[PlayerIndex.Player1].GetName()} WIN");
+                        return;
+
+                    default:
+                        // no elimination: show a quick message, then loop again
+                        Console.WriteLine("…no elimination, keep fighting…");
+                        Thread.Sleep(2000);
+                        continue;
                 }
             }
         }
@@ -78,5 +98,30 @@ namespace GunDuel
                  : p2Dead ? Outcome.P2Dead
                  : Outcome.None;
         }
+        
+    private void DisplayRoundHeader()
+    {
+        Console.Clear();
+        Console.WriteLine($"=== Round {State.GetRound()}/{GameState.MaxRounds} ===");
+        Console.WriteLine($"Score : {players[PlayerIndex.Player1].GetName()} = {State.GetScore(PlayerIndex.Player1)}, " +
+                          $"{players[PlayerIndex.Player2].GetName()} = {State.GetScore(PlayerIndex.Player2)}");
+        Console.WriteLine(new string('-', 40));
+        // Leave the cursor here—this is where move info will go
+    }
+
+    private void DisplayMoveAndAmmo(Move m1, Move m2)
+    {
+        // Move the cursor to line 4 (zero-based): header is 0,1,2, so we start printing at 3
+        Console.SetCursorPosition(0, 3);
+
+        // Overwrite the previous move info by printing blank lines first
+        Console.WriteLine(new string(' ', 40));
+        Console.WriteLine(new string(' ', 40));
+
+        // Put cursor back and print fresh move/ammo info
+        Console.SetCursorPosition(0, 3);
+        Console.WriteLine($"{players[PlayerIndex.Player1].GetName()} → {m1,-6}   Ammo: {State.GetAmmo(PlayerIndex.Player1)}");
+        Console.WriteLine($"{players[PlayerIndex.Player2].GetName()} → {m2,-6}   Ammo: {State.GetAmmo(PlayerIndex.Player2)}");
+    }
     }
 }
